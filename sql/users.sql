@@ -1,0 +1,10 @@
+insert into users (userName, password, email) values ('apennone0', 'tizca4O', 'melwin0@storify.com'); 
+insert into users (userName, password) values ('aliptrot1', 'XO0yvp1'); 
+insert into users (userName, password) values ('qvernall2', '0GJLwmf'); 
+insert into users (userName, password, email) values ('cmales3', '1efokYs', 'dgainsburgh3@tripadvisor.com'); 
+insert into users (userName, password, email) values ('ebrookz4', 'jQF6It', 'mpanchin4@examiner.com'); 
+insert into users (userName, password) values ('asherel5', 'Tr2UYEk'); 
+insert into users (userName, password, email) values ('groache6', '3rB1a5b', 'eavrahamov6@fc2.com'); 
+insert into users (userName, password, email) values ('dwilleman7', 'bCbD9iY', 'jvasyutochkin7@adobe.com');
+insert into users (userName, password, email) values ('apuig8', 'fZt1MtK', 'shuggard8@woothemes.com');
+insert into users (userName, password, email) values ('geeman9', 'geebaby', 'kcyster9@msu.edu');
