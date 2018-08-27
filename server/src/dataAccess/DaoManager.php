@@ -72,6 +72,7 @@
 			$statement->execute();
 			// $result->fetchAll(PDO::FETCH_CLASS, '$columnName');
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$statement = null;
 
 			return $result;
 		}
@@ -86,10 +87,11 @@
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 
 			$sql = "SELECT $placeholderSet FROM $tableName";
-			var_dump($columns);
+			// var_dump($columns);
 			$statement = $this->pdo->prepare($sql);
 			$statement->execute($columns);
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$statement = null;
 
 			return $result;
 
@@ -107,6 +109,7 @@
 			$statement = $this->pdo->prepare($sql);
 			$statement->execute([$id]);
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$statement = null;
 
 			return $result;
 
@@ -128,6 +131,7 @@
 			$statement = $this->pdo->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
 			$numberOfRowschanged = $statement->rowCount();
+			$statement = null;
 
 			return $numberOfRowschanged;
 		}
@@ -144,11 +148,27 @@
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);;
 
 			$sql = "INSERT INTO $tableName (".join(", ", array_keys($columnsAndData)).") VALUES ($placeholderSet)";
+			echo "SQL: $sql";
 			$statement = $this->pdo->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
-			$numberOfRowschanged = $statement->rowCount();
+			$resultSet = array("Number of Rows Effected" => $statement->rowCount(), "Effected row id(s)" => $this->pdo->LastInsertId());
+			$statement = null;
+
+			return $resultSet;
+		}
+
+		function deleteRecord($tableName, $id, $idName = "id" ){
+			$sql = "DELETE FROM $tableName WHERE $idName = ?";
+			$statement = $this->pdo->prepare($sql);
+			$statement->execute([$id]);
+			$numberOfRowschanged = array("Number of Rows Effected" => $statement->rowCount());
+			$statement = null;
 
 			return $numberOfRowschanged;
+		}
+
+		function closeConnection(){
+			$this->pdo = null;
 		}
 	}
 	
