@@ -2,8 +2,8 @@
 
 	require_once "OperationTypeEnum.php";
 
-	class DaoManager{
-		private $pdo;
+	class DBManager{
+		private $dbConn;
 		// private $tableName;
 		private $servername;
 		private $dbUsername;
@@ -26,7 +26,7 @@
 				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 				PDO::ATTR_EMULATE_PREPARES   => false,
 			];
-			$this->pdo = new PDO($dsn, $this->dbUsername, $this->dbPassword, $opt);
+			$this->dbConn = new PDO($dsn, $this->dbUsername, $this->dbPassword, $opt);
 			// $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		}
@@ -68,7 +68,8 @@
 		function getAll($tableName){
 			
 			$sql = "SELECT * FROM $tableName";
-			$statement = $this->pdo->prepare($sql);
+			
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute();
 			// $result->fetchAll(PDO::FETCH_CLASS, '$columnName');
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -87,8 +88,8 @@
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 
 			$sql = "SELECT $placeholderSet FROM $tableName";
-			// var_dump($columns);
-			$statement = $this->pdo->prepare($sql);
+
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute($columns);
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
 			$statement = null;
@@ -106,7 +107,7 @@
 			
 			$sql = "SELECT * FROM $tableName where $idName = ? ";
 
-			$statement = $this->pdo->prepare($sql);
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
 			$statement = null;
@@ -128,7 +129,8 @@
 			$placeholderSet = $placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 
 			$sql = "UPDATE $tableName SET $placeholderSet WHERE $idName = $id";
-			$statement = $this->pdo->prepare($sql);
+
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
 			$numberOfRowschanged = $statement->rowCount();
 			$statement = null;
@@ -148,10 +150,10 @@
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);;
 
 			$sql = "INSERT INTO $tableName (".join(", ", array_keys($columnsAndData)).") VALUES ($placeholderSet)";
-			echo "SQL: $sql";
-			$statement = $this->pdo->prepare($sql);
+
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
-			$resultSet = array("Number of Rows Effected" => $statement->rowCount(), "Effected row id(s)" => $this->pdo->LastInsertId());
+			$resultSet = array("Number of Rows Effected" => $statement->rowCount(), "Effected row id(s)" => $this->dbConn->LastInsertId());
 			$statement = null;
 
 			return $resultSet;
@@ -159,7 +161,8 @@
 
 		function deleteRecord($tableName, $id, $idName = "id" ){
 			$sql = "DELETE FROM $tableName WHERE $idName = ?";
-			$statement = $this->pdo->prepare($sql);
+
+			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
 			$numberOfRowschanged = array("Number of Rows Effected" => $statement->rowCount());
 			$statement = null;
@@ -168,7 +171,7 @@
 		}
 
 		function closeConnection(){
-			$this->pdo = null;
+			$this->dbConn = null;
 		}
 	}
 	

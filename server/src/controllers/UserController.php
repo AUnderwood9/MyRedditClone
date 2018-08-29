@@ -1,6 +1,6 @@
 <?php 
 
-	require_once "server/src/dataAccess/DaoManager.php";
+	require_once "server/src/databaseManager/DBManager.php";
 
 	class UserController{
 
