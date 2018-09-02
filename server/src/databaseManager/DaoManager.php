@@ -1,8 +1,9 @@
 <?php 
 
 	require_once "OperationTypeEnum.php";
+	require_once "ResultSetTypeEnum.php";
 
-	class DBManager{
+	class DaoManager{
 		private $dbConn;
 		// private $tableName;
 		private $servername;
@@ -39,7 +40,7 @@
 		function generatePlaceholders($operationType, $columnsOrData){
 			$placeholderSet = "";
 
-			if($operationType == OperationTypeEnum::RecordRetrieval || $operationType == OperationTypeEnum::RecordInsert){
+			if($operationType == OperationTypeEnum::RecordInsert){
 				for ($x = 0; $x < count($columnsOrData); $x++ ){
 					if($x == count($columnsOrData) - 1)
 						$placeholderSet .= "?"; 
@@ -79,19 +80,28 @@
 		}
 
 		/**
-		 * Used to get records from a database with specified coulumns (Currently not working)
+		 * Used to get records from a database using a where clause (Currently not working)
 		 * @param $tableName - type: string
-		 * @param $columns - type: array(string)
+		 * @param $columnAndValue - type: array(string)
+		 * @param $columnsToSelect - type: aray(string)
 		 */
-		function getRecordSetWithColumns($tableName, $columns){
+		function getRecordsWhere($tableName, $columnsAndData, $columnsToSelect=["*"], $resultType=ResultSetTypeEnum::SingleResultSet){
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordRetrieval);
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
+			$columnsToSelect = (count($columnsToSelect) == 1) ? $columnsToSelect[0] : join(", ",$columnsToSelect);
+			
+			var_dump($columnsAndData);
+			echo "</br></br>";
+			$columns = array("userName", "password");
+			var_dump($columnsToSelect);
+			echo "</br></br>";
 
-			$sql = "SELECT $placeholderSet FROM $tableName";
+			$sql = "SELECT $columnsToSelect FROM $tableName WHERE $placeholderSet";
 
 			$statement = $this->dbConn->prepare($sql);
-			$statement->execute($columns);
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$statement->execute(array_values($columnsAndData));
+			// $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$result = $this->formatAndRetrieveResults($statement, $resultType);
 			$statement = null;
 
 			return $result;
@@ -112,7 +122,7 @@
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
 			$statement = null;
 
-			return $result;
+			return $result[0];
 
 		}
 
@@ -168,6 +178,15 @@
 			$statement = null;
 
 			return $numberOfRowschanged;
+		}
+
+		function formatAndRetrieveResults($statement, $resultType){
+			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			// $statement = null;
+			if($resultType == ResultSetTypeEnum::SingleResultSet)
+				return $result[0];
+			else
+				return $result;
 		}
 
 		function closeConnection(){
