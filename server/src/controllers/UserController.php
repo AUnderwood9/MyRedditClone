@@ -6,12 +6,9 @@
 	class UserController{
 
 		private $dao;
-		private $salt;
 
 		function __construct(){
 			$this->dao = new DaoManager();
-			$this->salt = apache_getenv("VALUE_SALT");
-			// $this->salt = "salt";
 		}
 
 		public function getAllUsers(){
@@ -21,11 +18,8 @@
 		}
 
 		public function getUserById($userId){
-			$userResults = $this->dao->getRecordById("users", $userId, "userId");
-			// $2y$10$e0KbNorOSBMJVZaOYtBZOOIwiN2ORxvdtYaE2MFdZj.MlKv9tRifG
-			// return ["results: " => $userResults, "salt: " => $this->salt, "pass hash: " => password_hash($userResults["password"], PASSWORD_BCRYPT)];
-			// return ["results: " => $userResults, "pass hash: " => password_verify($userResults["password"], "\$2y\$10\$e0KbNorOSBMJVZaOYtBZOOIwiN2ORxvdtYaE2MFdZj.MlKv9tRifG")];
 			
+			return $this->dao->getRecordById("users", $userId, "userId");
 		}
 
 		public function createUser($createSet){
@@ -44,11 +38,7 @@
 
 		public function loginUser($userName, $password){
 			$columnDataSet = array("userName" => $userName);
-			// var_dump($columnDataSet);
-			// echo "</br></br>";
 			$columns = array("userName", "password");
-			// var_dump($columns);
-			// echo "</br></br>";
 			$userResults = $this->dao->getRecordsWhere("users", $columnDataSet, $columns);
 
 			// Possibly use unique ids here?

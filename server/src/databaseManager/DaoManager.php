@@ -119,10 +119,11 @@
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			// $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$result = $this->formatAndRetrieveResults($statement, ResultSetTypeEnum::SingleResultSet);
 			$statement = null;
 
-			return $result[0];
+			return $result;
 
 		}
 
@@ -182,7 +183,7 @@
 
 		function formatAndRetrieveResults($statement, $resultType){
 			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
-			// $statement = null;
+			
 			if($resultType == ResultSetTypeEnum::SingleResultSet)
 				return $result[0];
 			else
