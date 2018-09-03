@@ -38,16 +38,24 @@
 
 		public function loginUser($userName, $password){
 			$columnDataSet = array("userName" => $userName);
-			$columns = array("userName", "password");
+			$columns = array("userId","userName", "password");
 			$userResults = $this->dao->getRecordsWhere("users", $columnDataSet, $columns);
 
-			// Possibly use unique ids here?
+			// TODO Possibly use unique ids here?
+			// TODO Will also need to check if user is already logged in on another computer
 			if(password_verify($password, $userResults["password"])){
-				$_SESSION["sessionUserName"] = $userName;
-				$_SESSION["loginStatus"] = true;
+				$_SESSION["sessionUserStatus"] = ["userId" => $userResults["userId"], "userName" => $userName, "loginStatus" => true];
+			} else {
+				$_SESSION["sessionUserStatus"] = ["userName" => $userName, "loginStatus" => false, "reason" => "incorrect info"];
 			}
 
 			// return ["results: " => $userResults];
+		}
+
+		public function logoutUser(){
+			$_SESSION["sessionUserStatus"] = null;
+			session_destroy();
+			// unload user from DB as well.
 		}
 
 	}

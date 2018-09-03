@@ -5,7 +5,6 @@
 
 	class DaoManager{
 		private $dbConn;
-		// private $tableName;
 		private $servername;
 		private $dbUsername;
 		private $dbPassword;
@@ -14,7 +13,6 @@
 
 
 		function __construct(){
-			// $this->$tableName = $tableName;
 			$this->servername = apache_getenv("HTTP_SERVER_NAME");
 			$this->dbUsername = apache_getenv("HTTP_DB_USER_NAME");
 			$this->dbPassword = apache_getenv("HTTP_DB_PASSWORD");
@@ -89,18 +87,11 @@
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordRetrieval);
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 			$columnsToSelect = (count($columnsToSelect) == 1) ? $columnsToSelect[0] : join(", ",$columnsToSelect);
-			
-			var_dump($columnsAndData);
-			echo "</br></br>";
-			$columns = array("userName", "password");
-			var_dump($columnsToSelect);
-			echo "</br></br>";
 
 			$sql = "SELECT $columnsToSelect FROM $tableName WHERE $placeholderSet";
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
-			// $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 			$result = $this->formatAndRetrieveResults($statement, $resultType);
 			$statement = null;
 
@@ -119,7 +110,6 @@
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
-			// $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 			$result = $this->formatAndRetrieveResults($statement, ResultSetTypeEnum::SingleResultSet);
 			$statement = null;
 
@@ -164,7 +154,7 @@
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
-			$resultSet = array("Number of Rows Effected" => $statement->rowCount(), "Effected row id(s)" => $this->dbConn->LastInsertId());
+			$resultSet = array("rowsEffected" => $statement->rowCount(), "effectedId" => $this->dbConn->LastInsertId());
 			$statement = null;
 
 			return $resultSet;
