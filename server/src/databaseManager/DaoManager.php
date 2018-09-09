@@ -1,7 +1,7 @@
 <?php 
 
 	require_once "OperationTypeEnum.php";
-	require_once "ResultSetTypeEnum.php";
+//	require_once "ResultSetTypeEnum.php";
 
 	class DaoManager{
 		private $dbConn;
@@ -34,6 +34,8 @@
 		 * Used to generate placeholders for prepared statements
 		 * @param $operationType - type: enum - used to determine the operation type we are generating placeholders for
 		 * @param $columnsOrData - type: array(string) or Array(Assoc String) - Can contain only the columns we are replacing or a key value pair of columns and values(data)
+         *
+         * @return string
 		 */
 		function generatePlaceholders($operationType, $columnsOrData){
 			$placeholderSet = "";
@@ -56,7 +58,7 @@
 					if($element["key"] == $lastElement)
 						$placeholderSet .= $element[ 'key' ]." = ?"; 
 					else
-						$placeholderSet .= $element[ 'key' ]." = ?, ";
+						$placeholderSet .= $element[ 'key' ]." = ? AND ";
 
 				}	
 			}
@@ -64,9 +66,43 @@
 			return $placeholderSet;
 		}
 
-		function getAll($tableName){
+		/**
+		 * Builds a columns substring afor SQL statements.
+         * @param $columnArray array(string)
+         *
+         * return array
+		 */
+		function buildColumns($columnArray){
+		    return (count($columnArray) == 1) ? $columnArray[0] : join(", ",$columnArray);
+        }
+
+        /**
+         * Used to format results that retrieved from the database
+         * @param $statement - type: string
+         * @param $resultType - type: Enum
+         *
+         * @return array
+         */
+        function formatAndRetrieveResults($statement, $resultType){
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            if($resultType == ResultSetTypeEnum::SingleResultSet)
+                return $result[0];
+            else
+                return $result;
+        }
+
+        /**
+         * Used to get all the records in a database.
+         * @param $tableName - type: string
+         * @param $columnsToSelect - type: array
+         *
+         * @return array
+         */
+		function getAll($tableName, $columnsToSelect=["*"]){
 			
-			$sql = "SELECT * FROM $tableName";
+			$columnsToSelect = $this->buildColumns($columnsToSelect);
+			$sql = "SELECT $columnsToSelect FROM $tableName";
 			
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute();
@@ -80,33 +116,38 @@
 		/**
 		 * Used to get records from a database using a where clause (Currently not working)
 		 * @param $tableName - type: string
-		 * @param $columnAndValue - type: array(string)
-		 * @param $columnsToSelect - type: aray(string)
+		 * @param $columnsAndData - type: array(string)
+		 * @param $columnsToSelect - type: array(string)
+         * @param $resultType - type: enum
+         *
+         * @return array
 		 */
 		function getRecordsWhere($tableName, $columnsAndData, $columnsToSelect=["*"], $resultType=ResultSetTypeEnum::SingleResultSet){
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordRetrieval);
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
-			$columnsToSelect = (count($columnsToSelect) == 1) ? $columnsToSelect[0] : join(", ",$columnsToSelect);
+			$columnsToSelect = $this->buildColumns($columnsToSelect);
 
 			$sql = "SELECT $columnsToSelect FROM $tableName WHERE $placeholderSet";
 
-			$statement = $this->dbConn->prepare($sql);
+            $statement = $this->dbConn->prepare($sql);
 			$statement->execute(array_values($columnsAndData));
 			$result = $this->formatAndRetrieveResults($statement, $resultType);
 			$statement = null;
 
 			return $result;
-
 		}
 
 		/**
 		 * Used to get records from a database by their ID
 		 * @param $tableName - type: string
 		 * @param $id - type: int
+         *
+         * @return array
 		 */
-		function getRecordById($tableName, $id, $idName = "id"){
-			
-			$sql = "SELECT * FROM $tableName where $idName = ? ";
+		function getRecordById($tableName, $id, $columnsToSelect=["*"], $idName = "id"){
+            $columnsToSelect = $this->buildColumns($columnsToSelect);
+			$sql = "SELECT $columnsToSelect FROM $tableName where $idName = ? ";
+
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
@@ -124,10 +165,12 @@
 		 * @param $id - type: int
 		 * @param $columnsAndData - type: Array(Assoc String)
 		 * @param $idName - type: string
+         *
+         * @return int
 		 */
 		function updateRecordById($tableName, $columnsAndData, $id, $idName = "id"){
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordChange);
-			$placeholderSet = $placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
+			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 
 			$sql = "UPDATE $tableName SET $placeholderSet WHERE $idName = $id";
 
@@ -144,11 +187,12 @@
 		 * format:("Key" => "Column")
 		 * @param $tableName - type: string
 		 * @param $columnsAndData - type: Array(Assoc String)
-		 * 
+		 *
+         * @return array
 		 */
 		function insertRecord($tableName, $columnsAndData){
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordInsert);
-			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);;
+			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
 
 			$sql = "INSERT INTO $tableName (".join(", ", array_keys($columnsAndData)).") VALUES ($placeholderSet)";
 
@@ -160,26 +204,28 @@
 			return $resultSet;
 		}
 
+        /**
+         * Deletes records in database by a supplied id
+         * @param $tableName - type: string
+         * @param $id - type: int
+         * @param $idName - type: string
+         *
+         * @return array
+         */
 		function deleteRecord($tableName, $id, $idName = "id" ){
 			$sql = "DELETE FROM $tableName WHERE $idName = ?";
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
-			$numberOfRowschanged = array("Number of Rows Effected" => $statement->rowCount());
+			$numberOfRowsChanged = array("Number of Rows Effected" => $statement->rowCount());
 			$statement = null;
 
-			return $numberOfRowschanged;
+			return $numberOfRowsChanged;
 		}
 
-		function formatAndRetrieveResults($statement, $resultType){
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
-			
-			if($resultType == ResultSetTypeEnum::SingleResultSet)
-				return $result[0];
-			else
-				return $result;
-		}
-
+        /**
+         * Closes connection
+         */
 		function closeConnection(){
 			$this->dbConn = null;
 		}
