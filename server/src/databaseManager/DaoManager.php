@@ -2,8 +2,9 @@
 
 	require_once "OperationTypeEnum.php";
 //	require_once "ResultSetTypeEnum.php";
+    require_once "DaoManagerInterface.php";
 
-	class DaoManager{
+	class DaoManager implements DaoManagerInterface {
 		private $dbConn;
 		private $servername;
 		private $dbUsername;
@@ -36,6 +37,8 @@
 		 * @param $columnsOrData - type: array(string) or Array(Assoc String) - Can contain only the columns we are replacing or a key value pair of columns and values(data)
          *
          * @return string
+         *
+         * @TODO Abstract into its own class
 		 */
 		function generatePlaceholders($operationType, $columnsOrData){
 			$placeholderSet = "";
@@ -71,6 +74,8 @@
          * @param $columnArray array(string)
          *
          * return array
+         *
+         * @TODO Abstract into its own class
 		 */
 		function buildColumns($columnArray){
 		    return (count($columnArray) == 1) ? $columnArray[0] : join(", ",$columnArray);
@@ -82,6 +87,8 @@
          * @param $resultType - type: Enum
          *
          * @return array
+         *
+         * @TODO Abstract into its own class
          */
         function formatAndRetrieveResults($statement, $resultType){
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);

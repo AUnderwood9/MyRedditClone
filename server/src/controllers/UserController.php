@@ -1,14 +1,12 @@
-<?php 
-
-	require_once __DIR__."/../databaseManager/DaoManager.php";
+<?php
 	session_start();
 
 	class UserController{
 
 		private $dao;
 
-		function __construct(){
-			$this->dao = new DaoManager();
+		function __construct(DaoManagerInterface $dbConnection){
+            $this->dao = $dbConnection;
 		}
 
 		public function getAllUsers(){
@@ -54,6 +52,19 @@
 
 			 return $loginResult;
 		}
+
+        /**
+         * Checks if a user is logged in (used by routes and the front end)
+         *
+         * @param $userName - type: string
+         * @return bool
+         */
+		public function isLoggedIn($userName){
+		    if($_SESSION["sessionUserStatus"]["userName"] == $userName)
+		        return true;
+		    else
+		        return false;
+        }
 
 		public function logoutUser(){
 			$_SESSION["sessionUserStatus"] = null;

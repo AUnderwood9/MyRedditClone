@@ -1,13 +1,11 @@
 <?php
 
-    require_once __DIR__."/../databaseManager/DaoManager.php";
-
 	class CastController{
 
 		private $dao;
 
-		function __construct(){
-			$this->dao = new DaoManager();
+		function __construct(DaoManagerInterface $dbConnection){
+			$this->dao = $dbConnection;
 		}
 
 		/**
@@ -20,6 +18,8 @@
 		 * 	isActive: (boolean) Determines whether the subCast is active and can be navigated to
 		 * 	visible: (boolean) Determines whether the subCast is visible and can be found in the main site search
 		 * 	primaryAccentColor: (String) The accent color to be used
+         *
+         * @return string (enum)
 		 */
 		public function createCast($castCreateSet){
 			if($_SESSION["sessionUserStatus"]["loginStatus"]){
@@ -40,7 +40,11 @@
 		}
 
 		/**
-		 * 
+		 * Retrieves information on a cast based off of its ID or its resource link endpoint
+         * @param $currentCastId - type: int
+         * @param $castLink - type: string
+         *
+         * @return array
 		 */
 		public function getCastInfo($currentCastId=0, $castLink=""){
 		    $isOwner = 0;
@@ -96,11 +100,10 @@
 		 * In the cast control panel The owner can hide the casts that they created.
          * @param $currentCastId - type: int
          *
-         * return enum
+         * @return string (enum)
 		 */
 		public function hideCast($currentCastId){
 			if($_SESSION["sessionUserStatus"]["loginStatus"]){
-				// if not return an error
                 $numberOfRowsChanged = $this->dao->updateRecordById("subCast", ["visible" => 0], $currentCastId, "castID");
 
                 return ($numberOfRowsChanged == 1) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
@@ -108,6 +111,26 @@
 				return OperationStatusEnum::NONE;
 			}
 		}
+
+		public function showCast($currentCastId){
+            if($_SESSION["sessionUserStatus"]["loginStatus"]){
+                $numberOfRowsChanged = $this->dao->updateRecordById("subCast", ["visible" => 1], $currentCastId, "castID");
+
+                return ($numberOfRowsChanged == 1) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+            } else {
+                return OperationStatusEnum::NONE;
+            }
+        }
+
+        public function updateCast($currentCastId, $columnsAndData){
+            if($_SESSION["sessionUserStatus"]["loginStatus"]){
+                $numberOfRowsChanged = $this->dao->updateRecordById("subCast", $columnsAndData, $currentCastId, "castID");
+
+                return ($numberOfRowsChanged == 1) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+            } else {
+                return OperationStatusEnum::NONE;
+            }
+        }
 
 		/**
 		 * 
