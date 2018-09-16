@@ -43,6 +43,60 @@
             }
         }
 
+        /**
+         * Used to get all of the posts that are within a cast or that belong to a user. When selecting by user, postId
+         * as well ass subCastId are used to identify a unique post.
+         * @param $method string
+         * @param $idToSearch integer
+         */
+        function getPosts($method, $idToSearch) {
+            $byCastId = new SearchByMethodEnum(SearchByMethodEnum::BYCASTID);
+            $byUserId = new SearchByMethodEnum(SearchByMethodEnum::BYUSERID);
+            $operationSuccess = OperationStatusEnum::NONE;
+            $postListResults[] = ["status" => $operationSuccess];
+
+            switch (strtoupper($method)){
+                case $byCastId->getValue() :
+//                    echo "By Cast ID";
+                    $postList = $this->dao->getRecordById("castpostcommentmatrixindex", $idToSearch, ["castId", "postId"], "castId", ResultSetTypeEnum::MultiResultSet);
+                    $postListResults = $this->removeEmpty2dElements($postList, "postId");
+
+                    if(count($postListResults) == 0)
+                        $postListResults[0][] = ["result" => "nothing found"];
+                    else if(count($postListResults) > 0)
+                        array_unshift($postListResults, ["status" => OperationStatusEnum::SUCCESS]);
+                    else
+                        $postListResults[0]["status"] = OperationStatusEnum::FAIL;
+                    break;
+                case $byUserId->getValue() :
+//                    echo "By User ID";
+                    $postList = $this->dao->getRecordById("usercreatedcontent", $idToSearch, ["postId", "subCastId"], "userId", ResultSetTypeEnum::MultiResultSet);
+                    $postListResults = $this->removeEmpty2dElements($postList, "postId");
+
+                    if(count($postListResults) == 0)
+                        $postListResults[0][] = ["result" => "nothing found"];
+                    else if(count($postListResults) > 0)
+                        array_unshift($postListResults, ["status" => OperationStatusEnum::SUCCESS]);
+                    else
+                        $postListResults[0]["status"] = OperationStatusEnum::FAIL;
+                    break;
+            }
+
+            return $postListResults;
+        }
+
+        function removeEmpty2dElements($array2d, $keyToTest){
+            $new2dArray = [];
+            for($i = 0; $i < count($array2d); $i++){
+                $tempSet = $array2d[$i][$keyToTest];
+                if(isset($tempSet)){
+                    $new2dArray []= $array2d[$i];
+                }
+            }
+
+            return $new2dArray;
+        }
+
     }
 
 ?>

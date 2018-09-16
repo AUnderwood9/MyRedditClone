@@ -151,14 +151,15 @@
          *
          * @return array
 		 */
-		function getRecordById($tableName, $id, $columnsToSelect=["*"], $idName = "id"){
+		function getRecordById($tableName, $id, $columnsToSelect=["*"], $idName = "id", $resultType=ResultSetTypeEnum::SingleResultSet){
             $columnsToSelect = $this->buildColumns($columnsToSelect);
 			$sql = "SELECT $columnsToSelect FROM $tableName where $idName = ? ";
 
 
 			$statement = $this->dbConn->prepare($sql);
 			$statement->execute([$id]);
-			$result = $this->formatAndRetrieveResults($statement, ResultSetTypeEnum::SingleResultSet);
+			$result = $this->formatAndRetrieveResults($statement, $resultType);
+
 			$statement = null;
 
 			return $result;

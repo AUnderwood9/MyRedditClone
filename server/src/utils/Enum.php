@@ -35,12 +35,19 @@
 		 */
 		public function isValidEnumValue($checkValue)
 		{
-			$reflector = new ReflectionClass(get_class($this));
-			foreach ($reflector->getConstants() as $validValue)
-			{
-				if ($validValue == $checkValue) return true;
-			}
-			return false;
+		    try{
+                $reflector = new ReflectionClass(get_class($this));
+                foreach ($reflector->getConstants() as $validValue)
+                {
+                    if ($validValue == $checkValue) return true;
+                }
+                return false;
+            } catch (Exception $e) {
+		        echo "Exception caught: $e";
+
+		        return false;
+            }
+
 		}
 
 		/**
