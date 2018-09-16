@@ -11,13 +11,6 @@
 		/**
 		 * The cast itself is created then its references to the user is created.
 		 * @param array $castCreateSet
-		 * 	title: (String) Title of the subCast (200 character limit. May reduce.)
-		 * 	description: (String) Description of the subCast (750 character limit)
-		 * 	castName: (String) Name of the cast (Main name as well as URL name. Alphanumeric only)
-		 * 	sideBar: (String) Sidebar information for the subCast (20,000 character limit?)
-		 * 	isActive: (boolean) Determines whether the subCast is active and can be navigated to
-		 * 	visible: (boolean) Determines whether the subCast is visible and can be found in the main site search
-		 * 	primaryAccentColor: (String) The accent color to be used
          *
          * @return string (enum)
 		 */
