@@ -67,6 +67,7 @@
                         array_unshift($postListResults, ["status" => OperationStatusEnum::SUCCESS]);
                     else
                         $postListResults[0]["status"] = OperationStatusEnum::FAIL;
+
                     break;
                 case $byUserId->getValue() :
 //                    echo "By User ID";
@@ -79,10 +80,48 @@
                         array_unshift($postListResults, ["status" => OperationStatusEnum::SUCCESS]);
                     else
                         $postListResults[0]["status"] = OperationStatusEnum::FAIL;
+
                     break;
             }
 
             return $postListResults;
+        }
+
+        /**
+         * @param $postId integer
+         * @param $edit string
+         * @return string
+         */
+        function editPostDescription($postId, $edit){
+            if($_SESSION["sessionUserStatus"]["loginStatus"]){
+                $creatorId = $this->dao->getRecordById("post", $postId, ["creatorUserId"], $idName = "postId")["creatorUserId"];
+                if($_SESSION["sessionUserStatus"]["userId"] == $creatorId){
+                    $updateResultSet = $this->dao->updateRecordById("post", ["description" => $edit], $postId, "postId");
+                }
+            }
+
+            return ($updateResultSet > 0) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+        }
+
+        /**
+         * @param $castId integer
+         * @param $postId integer
+         * @param $userId integer
+         * @param $newAffinity integer (0 - no affinity, 1 - like, 2 - dislike)
+         */
+        function setUserPostAffinity($castId, $postId, $userId, $newAffinity){
+            // Check if user has an affinity with the selected post
+            $currentUserAffinity = $this->dao->getRecordsWhere("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId], $columnsToSelect=["id", "castId", "postId", "userLike"]);
+            // if user has an affinity
+            var_dump($currentUserAffinity);
+            if(isset($currentUserAffinity)){
+                echo "set";
+            } else {
+                $operationResults = $this->dao->insertRecord("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId, "userLike" => $newAffinity]);
+            }
+
+            return ($operationResults > 0) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+
         }
 
         function removeEmpty2dElements($array2d, $keyToTest){
