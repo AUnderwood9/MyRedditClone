@@ -7,6 +7,9 @@
         function updateRecordById($tableName, $columnsAndData, $id, $idName = "id");
         function insertRecord($tableName, $columnsAndData);
         function deleteRecord($tableName, $id, $idName = "id" );
+        function startTransaction();
+        function commitTransaction();
+        function rollbackTransaction();
         function closeConnection();
     }
 

@@ -231,6 +231,18 @@
 			return $numberOfRowsChanged;
 		}
 
+		function startTransaction(){
+            $this->dbConn->beginTransaction();
+        }
+
+        function commitTransaction(){
+            $this->dbConn->commit();
+        }
+
+        function rollbackTransaction(){
+            $this->dbConn->rollBack();
+        }
+
         /**
          * Closes connection
          */
