@@ -106,10 +106,13 @@
         }
 
         /**
+         * @TODO Add this to a controller of its own since it can also have its own generic functinoality
          * @param $castId integer
          * @param $postId integer
          * @param $userId integer
          * @param $newAffinity integer (0 - no affinity, 1 - like, 2 - dislike)
+         *
+         * @return string
          */
         function setUserPostAffinity($castId, $postId, $userId, $newAffinity){
             try {

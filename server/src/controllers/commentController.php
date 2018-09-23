@@ -14,21 +14,37 @@
          *
          * @return string (enum)
          */
-        public function createComment($postId, $commentCreateSet){
+        public function createComment($castId, $postId, $commentCreateSet){
             if($_SESSION["sessionUserStatus"]["loginStatus"]){
                 // get current user id
-                $currentUserId = $_SESSION["sessionUserStatus"]["userId"];
+                try{
+                    $this->dao->startTransaction();
 
-                // create comment
-                $commentCreateResultSet = $this->dao->insertRecord("Comment", $commentCreateSet);
+                    $currentUserId = $_SESSION["sessionUserStatus"]["userId"];
+                    $commentCreateSet += ["creatorId" => $currentUserId,"likes" => 1, "dislikes" => 0];
 
-                // update postCommentIndex
+                    // create comment
+                    $commentCreateResultSet = $this->dao->insertRecord("comment", $commentCreateSet);
+                    $createdCommentId = $commentCreateResultSet["effectedId"];
 
-                // update userCreatedContent
-                $createdCommentId = $commentCreateResultSet["effectedId"];
-                $userAssociationResultSet = $this->dao->insertRecord("userCreatedContent", ["userId" => $currentUserId, "CommentId" => $createdCommentId]);
+                    // update comment index
+                    $castPostCommentRelationResultSet = $this->dao->insertRecord("castPostCommentMatrixIndex", ["castId" => $castId, "postId" => $postId, "commentId" => $createdCommentId]);
 
-                return ($userAssociationResultSet["rowsEffected"] == 1 ) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+                    // update userCreatedContent
+                    $userAssociationResultSet = $this->dao->insertRecord("userCreatedContent", ["userId" => $currentUserId, "subCastId" => $castId, "postId" => $postId, "CommentId" => $createdCommentId]);
+
+                    if($commentCreateResultSet["rowsEffected"] == 1 && $userAssociationResultSet["rowsEffected"] == 1 && $castPostCommentRelationResultSet["rowsEffected"]){
+                        $this->dao->commitTransaction();
+                        return OperationStatusEnum::SUCCESS;
+                    } else {
+                        $this->dao->rollbackTransaction();
+                    }
+
+
+                } catch (Exception $e) {
+                    echo $e;
+                    $this->dao->rollbackTransaction();
+                }
             } else {
                 return OperationStatusEnum::NONE;
             }
