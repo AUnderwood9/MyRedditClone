@@ -48,6 +48,8 @@
          * as well ass subCastId are used to identify a unique post.
          * @param $method string
          * @param $idToSearch integer
+         *
+         * @return array
          */
         function getPosts($method, $idToSearch) {
             $byCastId = new SearchByMethodEnum(SearchByMethodEnum::BYCASTID);
@@ -110,14 +112,29 @@
          * @param $newAffinity integer (0 - no affinity, 1 - like, 2 - dislike)
          */
         function setUserPostAffinity($castId, $postId, $userId, $newAffinity){
-            // Check if user has an affinity with the selected post
-            $currentUserAffinity = $this->dao->getRecordsWhere("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId], $columnsToSelect=["id", "castId", "postId", "userLike"]);
-            // if user has an affinity
-            var_dump($currentUserAffinity);
-            if(isset($currentUserAffinity)){
-                echo "set";
-            } else {
-                $operationResults = $this->dao->insertRecord("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId, "userLike" => $newAffinity]);
+            try {
+
+                $this->dao->startTransaction();
+
+                // Check if user has an affinity with the selected post
+                $currentUserAffinity = $this->dao->getRecordsWhere("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId], $columnsToSelect=["id", "castId", "postId", "userLike"]);
+                // if user has an affinity
+                var_dump($currentUserAffinity);
+                if(isset($currentUserAffinity)){
+                    echo "set";
+                    // get the affinity record of the user that refers to this current post
+                    $operationResults = $this->dao->updateRecordById("userLikeDislikeIndex", ["userLike" => $newAffinity], $currentUserAffinity["id"]);
+
+                    // @TODO add like/dislike to current post
+                } else {
+                    $operationResults = $this->dao->insertRecord("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId, "userLike" => $newAffinity]);
+                }
+
+                $this->dao->commitTransaction();
+
+            } catch(Exception $e) {
+                echo $e;
+                $this->dao->rollbackTransaction();
             }
 
             return ($operationResults > 0) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
