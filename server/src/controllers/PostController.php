@@ -106,7 +106,7 @@
         }
 
         /**
-         * @TODO Add this to a controller of its own since it can also have its own generic functinoality
+         * @TODO Add this to a controller of its own since it can also have its own generic functinoality. POPO can be used for the Ids.
          * @param $castId integer
          * @param $postId integer
          * @param $userId integer
