@@ -20,6 +20,10 @@
 			return $this->dao->getRecordById("users", $userId, ["userName", "email"], "userId");
 		}
 
+		public function getUserByUserName($userName){
+			return $this->dao->getRecordsWhere("users", ["userName" => $userName],["userName", "email"]);
+		}
+
 		public function createUser($createSet){
 			$createSet["password"] = password_hash($createSet["password"], PASSWORD_BCRYPT);
 
