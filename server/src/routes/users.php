@@ -26,10 +26,31 @@
 		$currentDao = new DaoManager();
 		$userController = new UserController($currentDao);
 
-		$bodyResult = $request->getParsedBody();
-		$requestResult = $userController->loginUser($bodyResult["userName"], $bodyResult["password"]);
+		$bodyData = $request->getParsedBody();
+		$requestResult = $userController->loginUser($bodyData["userName"], $bodyData["password"]);
 
 		return $requestResult;
 
 	});
+
+	$this->get('/loginStatus/{userName}', function (Request $request, Response $response, array $args){
+		// Create database connection and controller
+		$currentDao = new DaoManager();
+		$userController = new UserController($currentDao);
+
+		$response->getBody()->write(json_encode($userController->isLoggedIn($args["userName"])));
+
+		return $response;
+	});
+
+	$this->post('/logout', function (Request $request, Response $response, array $args){
+		// Create database connection and controller
+		$currentDao = new DaoManager();
+		$userController = new UserController($currentDao);
+
+		$requestResult = $userController->logoutUser();
+
+		return $requestResult;
+	})
+
 ?>

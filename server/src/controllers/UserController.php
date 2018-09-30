@@ -64,16 +64,26 @@
          * @return bool
          */
 		public function isLoggedIn($userName){
-		    if($_SESSION["sessionUserStatus"]["userName"] == $userName)
-		        return true;
-		    else
-		        return false;
+			if(isset($_SESSION["sessionUserStatus"]["userName"])){
+				if($_SESSION["sessionUserStatus"]["userName"] == $userName)
+		        	return true;
+		    	else
+					return false;
+			} else {
+				return false;
+			}
         }
 
 		public function logoutUser(){
-			$_SESSION["sessionUserStatus"] = null;
-			session_destroy();
-			// unload user from DB as well.
+			try{
+				$_SESSION["sessionUserStatus"] = null;
+				session_destroy();
+				// unload user from DB as well.	
+				return OperationStatusEnum::SUCCESS;
+			} catch (Exception $e){
+				return OperationStatusEnum::FAIL;
+			}
+			
 		}
 
 	}
