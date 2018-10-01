@@ -20,7 +20,7 @@
 			return $this->dao->getRecordById("users", $userId, ["userName", "email"], "userId");
 		}
 
-		public function getUserByUserName($userName){
+		public function getUserByUserName($userName, $columnsToSelect=["userName", "email"]){
 			return $this->dao->getRecordsWhere("users", ["userName" => $userName],["userName", "email"]);
 		}
 
@@ -84,6 +84,17 @@
 				return OperationStatusEnum::FAIL;
 			}
 			
+		}
+
+		public function getLoggedInUserId($userName){
+			if(isset($_SESSION["sessionUserStatus"]["userName"])){
+				if($_SESSION["sessionUserStatus"]["userName"] == $userName)
+		        	return $_SESSION["sessionUserStatus"]["userId"];
+		    	else
+					return OperationStatusEnum::FAIL;
+			} else {
+				return OperationStatusEnum::FAIL;
+			}
 		}
 
 	}

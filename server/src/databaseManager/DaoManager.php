@@ -201,7 +201,7 @@
 		function insertRecord($tableName, $columnsAndData){
 			$operationType = new OperationTypeEnum(OperationTypeEnum::RecordInsert);
 			$placeholderSet = $this->generatePlaceholders($operationType, $columnsAndData);
-
+			
 			$sql = "INSERT INTO $tableName (".join(", ", array_keys($columnsAndData)).") VALUES ($placeholderSet)";
 
 			$statement = $this->dbConn->prepare($sql);

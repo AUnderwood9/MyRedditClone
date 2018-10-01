@@ -9,7 +9,7 @@
     require_once "server/src/controllers/CastController.php";
     require_once "server/src/controllers/PostController.php";
     require_once "server/src/controllers/CommentController.php";
-    require_once "server/src/controllers/UserContentRelation.php";
+    require_once "server/src/controllers/UserContentRelationController.php";
     require_once "server/src/databaseManager/ResultSetTypeEnum.php";
     require_once "server/src/utils/Enum.php";
     require_once "server/src/entities/SearchByMethodEnum.php";
@@ -21,8 +21,8 @@
 
 
     $app->group('/api', function ($app) {
-
-        require_once 'server/src/routes/users.php';
+		require_once 'server/src/routes/userRoute.php';
+		require_once 'server/src/routes/subCastRoute.php';
     });
 
 //    $app->run();
