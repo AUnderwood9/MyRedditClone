@@ -1,0 +1,13 @@
+{
+    "name": "wr8konedone/my-reddit-clone",
+    "type": "project",
+    "authors": [
+        {
+            "name": "AUnderwood9",
+            "email": "aunderwood797@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "^3.11"
+    }
+}
