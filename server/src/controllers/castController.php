@@ -15,18 +15,34 @@
          * @return string (enum)
 		 */
 		public function createCast($castCreateSet){
+			$operationStatus = OperationStatusEnum::NONE;
 			if($_SESSION["sessionUserStatus"]["loginStatus"]){
-				// get current user id
-				$currentUserId = $_SESSION["sessionUserStatus"]["userId"];
+				try{
+					$this->dao->startTransaction();	
+					// get current user id
+					$currentUserId = $_SESSION["sessionUserStatus"]["userId"];
+					
+					// create subcast
+					$castCreateResultSet = $this->dao->insertRecord("subCast", $castCreateSet);
+					
+					// update userCreatedContent
+					$createdCastId = $castCreateResultSet["effectedId"];
+					$userAssociationResultSet = $this->dao->insertRecord("userCreatedContent", ["userId" => $currentUserId, "subCastId" => $createdCastId]);
 
-				// create subcast
-				$castCreateResultSet = $this->dao->insertRecord("subCast", $castCreateSet);
-
-				// update userCreatedContent
-				$createdCastId = $castCreateResultSet["effectedId"];
-				$userAssociationResultSet = $this->dao->insertRecord("userCreatedContent", ["userId" => $currentUserId, "subCastId" => $createdCastId]);
+					if($userAssociationResultSet["rowsEffected"] == 1 && $castCreateResultSet["rowsEffected"] == 1){   $this->dao->commitTransaction();
+                        $operationStatus = OperationStatusEnum::SUCCESS;
+                    } else {
+                        $this->dao->rollbackTransaction();
+                        $operationStatus = OperationStatusEnum::FAIL;
+                    }
+				} catch (Exception $e){
+					echo $e;
+                    $this->dao->rollbackTransaction();
+                    $operationStatus = OperationStatusEnum::FAIL;
+				}
 				
-				return ($userAssociationResultSet["rowsEffected"] == 1 ) ? OperationStatusEnum::SUCCESS : OperationStatusEnum::FAIL;
+				
+				return $operationStatus;
 			} else {
 				return OperationStatusEnum::NONE;
 			}
@@ -79,8 +95,8 @@
 		    $castsInDb= $this->dao->getAll("subCast", ["castID", "description", "castName", "isActive", "visible"]);
 
 		    for($x = 0; $x < count($castsInDb); $x++){
-		        if($castsInDb[$x]["visible"]){
-		            unset($castsInDb[$x]["visible"]);
+		        if($castsInDb[$x]["visible"] == 0){
+					unset($castsInDb[$x]);
                     $castListing[] = $castsInDb;
                 }
             }
