@@ -141,36 +141,9 @@
             }
         }
 
-		/**
-		 * 
-		 */
-		public function deleteCast($currentCastId){
-
-		}
 
 		/**
-		 * 
-		 */
-		public function updateSidebar($currentCastId){
-
-		}
-
-		/**
-		 * 
-		 */
-		public function updateDescription($currentCastId){
-
-		}
-
-		/**
-		 * 
-		 */
-		public function updatePrimaryAccentColor($currentCastId){
-
-		}
-
-		/**
-		 * 
+		 * @TODO Create a system for banlists.
 		 */
 		public function updateBanList($currentCastId){
 

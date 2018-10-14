@@ -151,9 +151,9 @@
          *
          * @return array
 		 */
-		function getRecordById($tableName, $id, $columnsToSelect=["*"], $idName = "id", $resultType=ResultSetTypeEnum::SingleResultSet){
+		function getRecordById($tableName, $id, $columnsToSelect=["*"], $idName = "id", $resultType=ResultSetTypeEnum::SingleResultSet, $distinct=false){
             $columnsToSelect = $this->buildColumns($columnsToSelect);
-			$sql = "SELECT $columnsToSelect FROM $tableName where $idName = ? ";
+			$sql = "SELECT". ($distinct ? " DISTINCT" : "") ." $columnsToSelect FROM $tableName where $idName = ? ";
 
 
 			$statement = $this->dbConn->prepare($sql);
@@ -231,6 +231,9 @@
 			return $numberOfRowsChanged;
 		}
 
+		/**
+		 * @TODO find a way to avoid using this boilerplate code.
+		 */
 		function startTransaction(){
             $this->dbConn->beginTransaction();
         }
