@@ -31,4 +31,19 @@
 
         return $response;
 	});
+
+	$this->post('/casts/update', function (Request $request, Response $response, array $args){
+		$castController = new CastController(new DaoManager());
+		$userController = new UserController(new DaoManager());
+
+		$requestBody = $request->getParsedBody();
+		$serverResponse = $castController->updateCast($requestBody["id"], (array)$requestBody["edits"]);
+		
+		$responseBody = new StdClass;
+		$responseBody->success = $serverResponse;
+
+		$response->getBody()->write(json_encode($responseBody));
+
+        return $response;
+	})
 ?>
