@@ -20,6 +20,7 @@
 			$operationStatus;
             if($_SESSION["sessionUserStatus"]["loginStatus"]){
 				try{
+					$this->dao->startTransaction();
 					// get current user id
 					$currentUserId = $_SESSION["sessionUserStatus"]["userId"];
 
@@ -37,8 +38,8 @@
 					$userAssociationResultSet = $this->dao->insertRecord("userCreatedContent", ["userId" => $currentUserId, "subCastId" => $castId, "postId" => $createdPostId]);
 	
 					if ($postCreateResultSet["rowsEffected"] == 1 && $userAssociationResultSet["rowsEffected"] == 1 && $castPostRelationResultSet["rowsEffected"] == 1){
+						$operationStatus = OperationStatusEnum::SUCCESS;
 						$this->dao->commitTransaction();
-                        $operationStatus = OperationStatusEnum::SUCCESS;
                     } else {
                         $this->dao->rollbackTransaction();
                         $operationStatus = OperationStatusEnum::FAIL;
@@ -73,7 +74,9 @@
             switch (strtoupper($method)){
                 case $byCastId->getValue() :
 
-					$postList = $this->dao->getRecordById("castpostcommentmatrixindex", $idToSearch, ["castId", "postId"], "castId", ResultSetTypeEnum::MultiResultSet, true);
+					$postList = $this->dao->getRecordById("usercreatedcontent", $idToSearch, ["subCastId", "postId"], "subCastId", ResultSetTypeEnum::MultiResultSet, true);
+					$postList = array_filter($postList, function($value){return !is_null($value["postId"]);});
+					
 					if(count($postList) > 0){
 						foreach($postList as $value){
 							$postListResults[] = $this->dao->getRecordById("post", $value["postId"], ["title", "postType", "description", "likes", "dislikes"], "postId");
@@ -84,7 +87,8 @@
                     break;
                 case $byUserId->getValue() :
 
-                    $postList = $this->dao->getRecordById("usercreatedcontent", $idToSearch, ["postId", "subCastId"], "userId", ResultSetTypeEnum::MultiResultSet);
+					$postList = $this->dao->getRecordById("usercreatedcontent", $idToSearch, ["postId", "subCastId"], "userId", ResultSetTypeEnum::MultiResultSet);
+					$postList = array_filter($postList, function($value){return !is_null($value["postId"]);});
 
                     if(count($postList) > 0){
 						foreach($postList as $value){
@@ -103,8 +107,10 @@
          * @return string
          */
         function editPostDescription($postId, $edit){
+			$updateResultSet = 0;
             if($_SESSION["sessionUserStatus"]["loginStatus"]){
-                $creatorId = $this->dao->getRecordById("post", $postId, ["creatorUserId"], $idName = "postId")["creatorUserId"];
+				$creatorId = $this->dao->getRecordById("post", $postId, ["creatorUserId"], $idName = "postId")["creatorUserId"];
+				
                 if($_SESSION["sessionUserStatus"]["userId"] == $creatorId){
                     $updateResultSet = $this->dao->updateRecordById("post", ["description" => $edit], $postId, "postId");
                 }
@@ -125,26 +131,37 @@
         function setUserPostAffinity($castId, $postId, $userId, $newAffinity){
             try {
 
-                $this->dao->startTransaction();
+				$currentAffinityId="";
 
+                $this->dao->startTransaction();
+				// INSERT INTO userlikedislikeindex(userId, contentId, userAffinity) VALUES (17, 4, 1)
+
+				// Find the content that the user is applying an affinity to
+				// SELECT * FROM usercreatedcontent WHERE subCastId = 1 AND postId = 1 AND commentId IS NULL 
+				$postRecordList = $this->dao->getRecordsWhere("userCreatedContent", ["subCastId" => $castId, "postId" => $postId],$columnsToSelect=["id", "commentId"], ResultSetTypeEnum::MultiResultSet);
+				
+				foreach($postRecordList as $currentElement){
+					if(is_null($currentElement["commentId"]))
+						$currentAffinityId = $currentElement["id"];
+				}
+				
                 // Check if user has an affinity with the selected post
-                $currentUserAffinity = $this->dao->getRecordsWhere("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId], $columnsToSelect=["id", "castId", "postId", "userLike"]);
+                $currentUserAffinityId = $this->dao->getRecordById("userLikeDislikeIndex", $currentAffinityId, $columnsToSelect=["id", "contentId", "userAffinity"], "contentId")["id"];
                 // if user has an affinity
-                var_dump($currentUserAffinity);
-                if(isset($currentUserAffinity)){
-                    echo "set";
+                if(isset($currentUserAffinityId)){
+					
                     // get the affinity record of the user that refers to this current post
-                    $operationResults = $this->dao->updateRecordById("userLikeDislikeIndex", ["userLike" => $newAffinity], $currentUserAffinity["id"]);
+                    $operationResults = $this->dao->updateRecordById("userLikeDislikeIndex", ["userAffinity" => $newAffinity], $currentUserAffinityId);
 
                     // @TODO add like/dislike to current post
                 } else {
-                    $operationResults = $this->dao->insertRecord("userLikeDislikeIndex", ["userId" => $userId, "castId" => $castId, "postId" => $postId, "userLike" => $newAffinity]);
+                    $operationResults = $this->dao->insertRecord("userLikeDislikeIndex", ["userId" => $userId, "contentId" => $currentUserAffinityId, "userAffinity" => $newAffinity]);
                 }
 
                 $this->dao->commitTransaction();
 
             } catch(Exception $e) {
-                echo $e;
+                
                 $this->dao->rollbackTransaction();
             }
 
