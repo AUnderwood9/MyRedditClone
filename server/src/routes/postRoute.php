@@ -18,12 +18,39 @@
 	});
 
 	$this->post('/post', function (Request $request, Response $response, array $args) {
-		$castController = new CastController(new DaoManager());
-		$userController = new UserController(new DaoManager());
+		$postController = new PostController(new DaoManager());
 		
 		$requestBody = $request->getParsedBody();
-		$serverResponse = $castController->createCast((array)$requestBody);
+		// var_dump($requestBody);
+		$serverResponse = $postController->createPost($requestBody["id"], (array)$requestBody["insertRecord"]);
+		$responseBody = new StdClass;
+		$responseBody->success = $serverResponse;
+
+		$response->getBody()->write(json_encode($responseBody));
+
+        return $response;
+	});
+
+	$this->post('/post/update', function (Request $request, Response $response, array $args) {
+		$postController = new PostController(new DaoManager());
 		
+		$requestBody = $request->getParsedBody();
+		// var_dump($requestBody);
+		$serverResponse = $postController->editPostDescription($requestBody["id"], $requestBody["edit"]);
+		$responseBody = new StdClass;
+		$responseBody->success = $serverResponse;
+
+		$response->getBody()->write(json_encode($responseBody));
+
+        return $response;
+	});
+
+	$this->post('/post/setaffinity', function (Request $request, Response $response, array $args) {
+		$postController = new PostController(new DaoManager());
+		
+		$requestBody = $request->getParsedBody();
+		// var_dump($requestBody);
+		$serverResponse = $postController->setUserPostAffinity($requestBody["castId"], $requestBody["postId"],$requestBody["userId"], $requestBody["affinity"]);
 		$responseBody = new StdClass;
 		$responseBody->success = $serverResponse;
 
