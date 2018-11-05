@@ -1,0 +1,16 @@
+.componentMainContainer{
+	display: grid;
+	grid-template-rows: 1fr 3fr;
+}
+
+.userNavBar{
+	display: flex;
+	// justify-content: space-around;
+}
+
+.navAuthInput{
+	padding: 0.20em;
+	width: 125px;
+	margin: 5px 2px;
+	// align-self: flex-start;
+}
