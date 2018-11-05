@@ -1,0 +1,34 @@
+{
+  "name": "MyRedditClone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AUnderwood9/MyRedditClone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AUnderwood9/MyRedditClone/issues"
+  },
+  "homepage": "https://github.com/AUnderwood9/MyRedditClone#readme",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-router-dom": "^4.3.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "sass": "^1.14.3"
+  }
+}
