@@ -10,7 +10,7 @@
 		}
 
 		public function getLoggedInUserName(){
-			return isset($_SESSION["sessionUserStatus"]["userName"]) ? ["currentUsserExists" => true, "loggedInUser" => $_SESSION["sessionUserStatus"]["userName"] ] : ["currentUsserExists" => false];
+			return isset($_SESSION["sessionUserStatus"]["userName"]) ? ["hasLoginSession" => true, "loggedInUser" => $_SESSION["sessionUserStatus"]["userName"] ] : ["hasLoginSession" => false];
 			// return $_SESSION["sessionUserStatus"]["userName"];
 		}
 

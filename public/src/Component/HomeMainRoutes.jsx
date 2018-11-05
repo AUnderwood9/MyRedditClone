@@ -1,5 +1,9 @@
 import React, { Component, Fragment } from "react";
-import Header from "./Header";
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import PrivateRoute from "./privateRoute";
+import NavHeaderNoLogin from "./NavHeaderNoLogin";
+import Home from "./Home";
+import HomeUnlogged from "./HomeUnlogged";
 require('isomorphic-fetch');
 
 class App extends Component{
@@ -19,14 +23,14 @@ class App extends Component{
 
 	render (){
 		return (
-			<div className="componentMainContainer">
-				<Header/>
-					<h2>
-						Hai, i'm paul!
-					</h2>
-					<p id="insertionPoint">
-					</p>
-			</div>
+			<Router>
+				<div className="componentMainContainer">
+					<Switch>
+						<PrivateRoute exact path="/" component={Home} />
+						<Route path="/login" component={HomeUnlogged}/>
+					</Switch>
+				</div>
+			</Router>
 		);
 	}
 }
