@@ -2,6 +2,16 @@
     use \Psr\Http\Message\ServerRequestInterface as Request;
 	use \Psr\Http\Message\ResponseInterface as Response;
 	
+	$this->get('/caster', function (Request $request, Response $response, array $args) {
+		// Create database connection  and controller
+		$currentDao = new DaoManager();
+		$userController = new UserController($currentDao);
+		
+		$response->getBody()->write(json_encode($userController->getLoggedInUserName()));
+
+        return $response;
+	});
+
 	$this->get('/caster/{user}', function (Request $request, Response $response, array $args) {
 		// $userName = $args["user"];
 

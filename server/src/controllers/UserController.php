@@ -9,10 +9,9 @@
             $this->dao = $dbConnection;
 		}
 
-		public function getAllUsers(){
-
-			return $this->dao->getAll("users");
-
+		public function getLoggedInUserName(){
+			return isset($_SESSION["sessionUserStatus"]["userName"]) ? ["currentUsserExists" => true, "loggedInUser" => $_SESSION["sessionUserStatus"]["userName"] ] : ["currentUsserExists" => false];
+			// return $_SESSION["sessionUserStatus"]["userName"];
 		}
 
 		public function getUserById($userId){
@@ -63,12 +62,14 @@
          * @param $userName - type: string
          * @return bool
          */
-		public function isLoggedIn($userName){
-			if(isset($_SESSION["sessionUserStatus"]["userName"])){
-				if($_SESSION["sessionUserStatus"]["userName"] == $userName)
+		public function isLoggedIn($userName=""){
+			if(isset($userName) && !empty($userName)){
+				if(isset($_SESSION["sessionUserStatus"]) && $_SESSION["sessionUserStatus"]["userName"] == $userName)
 		        	return true;
 		    	else
 					return false;
+			} else if(isset($_SESSION["sessionUserStatus"]["userName"])){
+				return true;
 			} else {
 				return false;
 			}
