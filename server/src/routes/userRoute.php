@@ -46,7 +46,7 @@
 		$bodyData = $request->getParsedBody();
 		$requestResult = $userController->loginUser($bodyData["userName"], $bodyData["password"]);
 
-		return $requestResult;
+		return $response->getBody()->write(json_encode($requestResult));
 
 	});
 
