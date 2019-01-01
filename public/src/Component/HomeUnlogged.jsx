@@ -8,10 +8,6 @@ class HomeUnloggedd extends Component{
 		this.state = { };
 	}
 
-	componentDidMount(){
-		console.log("Not Logged In!");
-	}
-
 	render (){
 		return (
 			<div>
