@@ -8,41 +8,15 @@ function isUserLoggedIn (){ return userLoggedIn; }
 function checkHasLoginSession() {
 	return fetch(baseUrl + "caster")
 	.then((response) => {
-		// console.log("Response: ");
-		// console.log(response);
-		// return response.json();
 		userLoggedIn = true;
 		return Promise.resolve(true);
 	})
-	// .then((responseResult) => {
-	// 	console.log("Response: ");
-	// 	console.log(responseResult);
-	// 	// return {result: "responseResult"};
-	// 	return responseResult;
-	// })
 	.catch((err) => {
 		console.log(err);
 		userLoggedIn = false;
 		return Promise.resolve(false);
 	});
 }
-
-// async function login(userName, password){
-// 	let loginResult;
-// 	try{
-// 		loginResult = await fetch(baseUrl + "login", {
-// 			        method: 'POST',
-// 			        body: JSON.stringify({ userName, password }),
-// 			        headers: new Headers({
-// 			            'Content-Type': 'application/json'
-// 			        })
-// 			    }).then((response) => {return response.json});
-// 	} catch(err) {
-// 		console.log(err);
-// 		loginResult = false;
-// 	}
-// }
-
 
 function login(userName, password) {
     return fetch(baseUrl + "login", {
