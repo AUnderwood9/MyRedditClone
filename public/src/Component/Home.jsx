@@ -1,30 +1,34 @@
 import React, { Component, Fragment } from "react";
-import NavHeaderNoLogin from "./NavHeaderNoLogin";
+import NavHeaderNoLogin from "./NavHeader/NavHeaderNoLogin";
+import NavHeaderLogin from "./NavHeader/NavHeaderLogin";
 import { checkHasLoginSession } from "../service/userService";
 require('isomorphic-fetch');
 
 class App extends Component{
 	constructor(props){
 		super(props)
-		this.state = { };
+		this.state = { hasLoginSession: false };
 	}
 
 	componentDidMount(){
 		checkHasLoginSession()
 		.then((response) => {
-			document.getElementById("insertionPoint").innerHTML = response.hasLoginSession;
+			console.log("My response");
+			console.log(response);
+			this.setState( { response: response.hasLoginSession ? response.loggedInUser : null } );
 		})
 	}
 
 	render (){
 		return (
-			<div>
-				<h2>
-					Hai, i'm paul!
-				</h2>
-				<p id="insertionPoint">
-				</p>
-			</div>
+			<Fragment>
+				<NavHeaderLogin />
+				<div>
+					<h2>
+						Hai, i'm { this.state.hasLoginSession }!
+					</h2>
+				</div>
+			</Fragment>
 		);
 	}
 }

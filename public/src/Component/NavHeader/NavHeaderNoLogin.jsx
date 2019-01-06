@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import AuthButton from "./Auth/authButton";
-import * as userService from "./../service/userService";
+import { Redirect } from 'react-router-dom';
+import AuthButton from "../Auth/authButton";
+import * as userService from "../../service/userService";
 require('isomorphic-fetch');
 
 class NavHeaderNoLogin extends Component{
@@ -9,7 +10,7 @@ class NavHeaderNoLogin extends Component{
 
 		this.onChange = this.onChange.bind(this);
 
-		this.state = { currentUser : "", loginUserName: "",  loginUserPassword: "" };
+		this.state = { currentUser : "", loginUserName: "",  loginUserPassword: "", redirectToReferrer: false };
 	}
 
 	login(e) {
@@ -29,6 +30,12 @@ class NavHeaderNoLogin extends Component{
 	}
 
 	render(){
+		const { from } = this.props.path || { from: { pathname: '/' } };
+	   	const { redirectToReferrer } = this.state;
+	   
+		if (redirectToReferrer) 
+			return <Redirect to={from} />
+
 		return(
 			<nav className="userNavBar">
 			<span className="navAuthHeaderText" >Welcome!</span>

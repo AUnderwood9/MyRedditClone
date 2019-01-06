@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from "react";
 import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import PrivateRoute from "./privateRoute";
-import NavHeaderNoLogin from "./NavHeaderNoLogin";
+import NavHeaderNoLogin from "./NavHeader/NavHeaderNoLogin";
 import Home from "./Home";
 import HomeUnlogged from "./HomeUnlogged";
+import Logout from "./Auth/Logout";
 require('isomorphic-fetch');
 
 class App extends Component{
@@ -12,15 +13,6 @@ class App extends Component{
 		this.state = { };
 	}
 
-	// componentDidMount(){
-	// 	fetch("http://localhost/MyRedditClone/api/caster/SoopaTroopa").then(function (response) {
-	// 		return response.json();
-	// 	}).then(function (responseObject){
-	// 		document.getElementById("insertionPoint").innerHTML = `<p> ${responseObject.userName} HIT ME@ ${responseObject.email}</p>`;
-	// 	});
-	// }
-
-
 	render (){
 		return (
 			<Router>
@@ -28,6 +20,7 @@ class App extends Component{
 					<Switch>
 						<PrivateRoute exact path="/" component={Home} />
 						<Route path="/login" component={HomeUnlogged}/>
+						<Route path="/logout" component={Logout}/>
 					</Switch>
 				</div>
 			</Router>
